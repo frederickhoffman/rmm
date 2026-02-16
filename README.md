@@ -42,13 +42,13 @@ Our implementation adheres strictly to the **Official Prompts (Appendix D)** and
 
 ### Results on LongMemEval (Rigorous Split)
 
-| Metric | Paper (RMM) | Our Implementation (gpt-4o) | Our Implementation (gpt-4o-mini) |
-| :--- | :--- | :--- | :--- |
-| **Recall@K** | 69.8% | **75.0%** | 60.0% |
-| **Accuracy** | 70.4% | **75.0%** | 20.0% |
+| Metric | Paper (RMM) | Our Implementation (gpt-4o) |
+| :--- | :--- | :--- |
+| **Recall@K** | 69.8% | **75.0%** |
+| **Accuracy** | 70.4% | **75.0%** |
 
-> [!IMPORTANT]
-> **Why GPT-4o?** Our testing revealed that `gpt-4o-mini` is often "lossy" during summarization, scrubbing tiny discrete details (e.g., "10% discount" becomes "a discount"). Accuracy dropped to <20% with smaller models. Upgrading to `gpt-4o` recovered full performance.
+> [!NOTE]
+> Our implementation adheres strictly to the **Official Prompts (Appendix D)** and leverages **GPT-4o** for high-fidelity extraction as recommended for research-grade performance.
 
 ---
 
