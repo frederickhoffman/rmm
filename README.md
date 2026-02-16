@@ -44,8 +44,8 @@ Our implementation adheres strictly to the **Official Prompts (Appendix D)** and
 
 | Metric | Paper (RMM) | Our Implementation (gpt-4o) |
 | :--- | :--- | :--- |
-| **Recall@K** | 69.8% | **75.0%** |
-| **Accuracy** | 70.4% | **75.0%** |
+| **Recall@K** | 69.8% | **75.0%** (3/4) |
+| **Accuracy** | 70.4% | **50.0%** (2/4) |
 
 > [!NOTE]
 > Our implementation adheres strictly to the **Official Prompts (Appendix D)** and leverages **GPT-4o** for high-fidelity extraction as recommended for research-grade performance.
