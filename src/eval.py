@@ -6,12 +6,15 @@ load_dotenv()
 
 from langsmith import Client
 from langchain_openai import ChatOpenAI
-from langchain_core.messages import HumanMessage
 from src.memory_store import MemoryStore, MemoryEntry
 from src.prospective import ProspectiveReflection
 from src.retrospective import RetrospectiveReflection
 from src.graph import RMMGraph
 from typing import List, Dict, Any
+import json
+import ijson
+import random
+from langchain_core.messages import HumanMessage, AIMessage
 
 class RMMEval:
     def __init__(self, project_name: str = "rmm-reflection"):
@@ -198,7 +201,6 @@ class RMMEval:
             return
 
         print(f"Loading LongMemEval from {file_path} using streaming parser...")
-        import ijson
         
         wandb.init(project=self.project_name, name="longmem-rigorous-benchmark")
         
@@ -214,7 +216,6 @@ class RMMEval:
                 if i >= num_samples * 2: # Keep pool small
                     break
         
-        import random
         random.seed(42)
         samples = random.sample(pool, min(num_samples, len(pool)))
         
@@ -366,7 +367,5 @@ Output only 'YES' or 'NO'."""
         wandb.finish()
 
 if __name__ == "__main__":
-    import json
-    from langchain_core.messages import AIMessage
     eval_tool = RMMEval()
     asyncio.run(eval_tool.run_longmem_benchmark(num_samples=50))

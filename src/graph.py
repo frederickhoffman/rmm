@@ -178,7 +178,7 @@ Output:"""
 
 # Default instances for LangGraph Server / Studio
 _memory_store = MemoryStore()
-_prospective = ProspectiveReflection(_memory_store, model_name="gpt-4o-mini")
+_prospective = ProspectiveReflection(_memory_store, model_name="gpt-4o")
 _retrospective = RetrospectiveReflection(_memory_store)
 _rmm_graph = RMMGraph(_memory_store, _prospective, _retrospective)
 compiled_graph = _rmm_graph.graph

@@ -73,7 +73,6 @@ class RetrospectiveReflection:
 
         # Labels: 1 if memory content is cited in the response
         # The prompt uses [Memory i] format where i is the index in the input list
-        import re
         cited_indices = set()
         for cite in citations:
             match = re.search(r"\[Memory (\d+)\]", cite)
