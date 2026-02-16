@@ -65,6 +65,17 @@ cp .env.example .env
 ```
 *Configure your API keys in `.env` (OpenAI, LangSmith, W&B).*
 
+### Data Acquisition
+To ensure reproducibility, use the provided script to download the necessary datasets from Hugging Face:
+
+```bash
+uv run python src/download_data.py
+```
+
+This will download:
+- `longmemeval_s_cleaned.json`: The rigorous LongMemEval split (~115k context).
+- `longmemeval_m_cleaned.json`: The medium split for broader validation.
+
 ### Running the Benchmark
 Execute the rigorous LongMemEval suite:
 ```bash

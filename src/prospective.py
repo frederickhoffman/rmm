@@ -25,7 +25,20 @@ class ProspectiveReflection:
         self.memory_store = memory_store
         self.llm = ChatOpenAI(model=model_name)
         # Load official prompt (hardcoded here for reliability)
-        self.summary_prompt = ChatPromptTemplate.from_template("""Task Description: Given a session of dialogue between SPEAKER_1 and SPEAKER_2, extract the personal summaries of SPEAKER_2, with references to the corresponding turn IDs. Ensure the output adheres to the following rules:
+        self.summary_prompt = ChatPromptTemplate.from_template("""You are a highly capable data processing agent. Your task is to analyze historical dialogue transcripts and extract structured information for a research database.
+
+CRITICAL: Preservation of QUALITATIVE and QUANTITATIVE details is paramount.
+You MUST NOT generalize or skip the following:
+1. NUMERICAL VALUES: Exact amounts, prices, frequencies, and counts.
+2. PERCENTAGES: Discount rates, probabilities, and shares.
+3. DURATIONS/TIMES: Length of events (e.g., "0.5 hours"), specific dates, and times of day.
+4. NAMED ENTITIES: Titles of plays, books, movies, specific places, and proper names.
+
+INCORRECT: "User attended a play" or "User got a discount".
+CORRECT: "User attended 'The Glass Menagerie'" or "User received a 10% discount".
+
+Analyze the dialogue below and extract all salient entities and summaries.
+Task Description: Given a session of dialogue between SPEAKER_1 and SPEAKER_2, extract the personal summaries of SPEAKER_2, with references to the corresponding turn IDs. Ensure the output adheres to the following rules:
     • Output results in JSON format. The top-level key is "extracted_memories". The value should be a list of dictionaries, where each dictionary has the keys "summary" and "reference":
            – summary: A concise personal summary, which captures relevant information about SPEAKER_2’s experiences, preferences, and background, across multiple turns.
            – reference: A list of references, each in the format of [turn_id] indicating where the information appears.

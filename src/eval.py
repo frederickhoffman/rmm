@@ -189,7 +189,12 @@ class RMMEval:
         """
         file_path = "data/longmemeval_s_cleaned.json"
         if not os.path.exists(file_path):
-            print(f"Error: {file_path} not found.")
+            print(f"Data not found. Attempting automatic download...")
+            from src.download_data import download_datasets
+            download_datasets()
+            
+        if not os.path.exists(file_path):
+            print(f"Error: {file_path} still not found after download attempt.")
             return
 
         print(f"Loading LongMemEval from {file_path} using streaming parser...")
