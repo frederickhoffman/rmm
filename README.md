@@ -1,121 +1,101 @@
+![RMM Hero Banner](docs/assets/hero.png)
+
 # Reflective Memory Management (RMM) 🧠
 
-Implementation of the paper **"In Prospect and Retrospect: Reflective Memory Management for Long-term Personalized Dialogue Agents"**.
+[![Python 3.13](https://img.shields.io/badge/python-3.13-blue.svg)](https://www.python.org/downloads/release/python-3130/)
+[![LangChain](https://img.shields.io/badge/Powered%20by-LangChain-green.svg)](https://github.com/langchain-ai/langchain)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-This project provides a stateful dialogue agent that proactively manages its long-term memory and adaptively refines its retrieval mechanism through reinforcement learning.
+An unofficial high-fidelity implementation of the paper: **"In Prospect and Retrospect: Reflective Memory Management for Long-term Personalized Dialogue Agents"** (ACL 2025).
 
-## 📖 Problem Formulation
-
-Building personalized dialogue agents for multi-session interactions presents two critical challenges that RMM addresses:
-
-1.  **Proactive Information Management**: Agents must proactively identify, extract, and store salient information from dialogue sessions, anticipating future retrieval needs before they arise.
-2.  **Accurate Information Retrieval**: Agents must accurately retrieve only the relevant past information. Irrelevant context can "distract" Large Language Models (LLMs), leading to degraded response quality and hallucinations.
-
-Existing approaches often suffer from **rigid memory granularity** (e.g., fixed window sizes) and **static retrieval mechanisms** that fail to adapt to evolving user interaction patterns and varied conversational contexts.
-
-## 🏗️ Framework Overview: Reflective Memory Management (RMM)
-
-RMM introduces a dual-reflection architecture that balances comprehensive storage with precise, adaptive retrieval:
-
-### 1. Prospective Reflection (Proactive)
-- **Mechanism**: Operates in the "background" to organize dialogue history into topic-based memory representations.
-- **Granularity**: Dynamically decomposes interactions across multiple levels—utterances, turns, and sessions—into a personalized memory bank.
-- **Process**: Uses LLM-based summarization to extract salient snippets and consolidate them into a coherent long-term knowledge base, minimizing redundancy while maximizing coverage.
-
-### 2. Retrospective Reflection (Retrospective)
-- **Mechanism**: Dynamically refines the retrieval process during active dialogue using online feedback signals.
-- **Neuronal Re-ranking**: A lightweight re-ranker processes embeddings of the query and candidate memories. It uses the **Gumbel trick** for stochastic sampling to balance exploration and exploitation.
-- **Online RL**: The system treats LLM-generated **citations** as a reward signal ($R=1$ if a memory is cited, $R=0$ otherwise). This allows the retriever to iteratively learn which types of memories are most useful for generating accurate, personalized responses.
+This framework implements a dual-reflection architecture that allows dialogue agents to proactively manage long-term memory and adaptively refine retrieval through online reinforcement learning.
 
 ---
 
-## 🚀 Installation
+## 🏗️ Architecture
 
-This project uses `uv` for lightning-fast dependency management.
+RMM balances comprehensive storage with precise, adaptive retrieval through two distinct reflection loops:
 
-1. **Clone the repository**:
-   ```bash
-   git clone <repo-url>
-   cd rmm
-   ```
+```mermaid
+graph TD
+    A[Dialogue Session] --> B[Prospective Reflection]
+    B -->|Summarize & Consolidate| C[(Topic-based Memory Store)]
+    D[User Query] --> E[Retrospective Reflection]
+    C -->|Candidate Memories| E
+    E -->|Stochastic Re-ranking| F[Response Generation]
+    F -->|Citations| G[Reward Signal]
+    G -->|Online RL| E
+    F --> H[User Response]
+```
 
-2. **Setup environment**:
-   ```bash
-   uv sync
-   cp .env.example .env
-   ```
-   *Fill in your `OPENAI_API_KEY`, `LANGSMITH_API_KEY`, and `WANDB_API_KEY` in the `.env` file.*
+### 1. Prospective Reflection (The "Prospect")
+Consolidates dialogue history into topic-based memory representations. It dynamically extracts salient snippets from multiple sessions to minimize redundancy while maximizing coverage.
 
-3. **Active virtual environment**:
-   ```bash
-   source .venv/bin/activate
-   ```
-
----
-
-## 📊 Benchmarking & Reproduction
-
-To reproduce the performance results on **MSC (Multi-Session Chat)** and **LongMemEval**:
-
-1. **Run Evaluation Suite**:
-   ```bash
-   uv run python src/eval.py
-   ```
-   This script will:
-   - Download the MSC dataset.
-   - Run the RMM agent through multiple interactive sessions.
-   - Log metrics (Recall@K, Citation Accuracy, BERTScore) to **LangSmith** and **Weights & Biases**.
-
-2. **View Dashboards**:
-   - **LangSmith**: Detailed traces of the reflection state machine.
-   - **Weights & Biases**: Real-time charts comparing RMM against vanilla retrieval baselines.
+### 2. Retrospective Reflection (The "Retrospect")
+Refines retrieval during active dialogue. Using **Online RL**, a lightweight re-ranker learns to prioritize memories that the LLM actually cites in its responses, effectively "filtering" the context to prevent model distraction.
 
 ---
 
-## �️ Interactive UI (LangSmith / LangGraph Studio)
+## 📊 Performance Benchmarks
 
-You can interact with the agent's state machine visually and debug the reflection loops using the LangGraph server:
+Our implementation adheres strictly to the **Official Prompts (Appendix D)** and uses **GPT-4o** for high-fidelity extraction.
 
-1. **Start the LangGraph Server**:
-   ```bash
-   uv run langgraph dev
-   ```
+### Results on LongMemEval (Rigorous Split)
 
-2. **Open the UI**:
-   - The command will provide a local URL (usually `http://localhost:2024`).
-   - Open this URL in your browser to access the **LangGraph Studio**.
-   - **Testing Multi-User Memory**: In the "Configuration" or "Input" tab of the Studio, you can set the `user_id` in the input JSON (e.g., `{"messages": [...], "user_id": "user_123"}`).
-   - This allows you to verify that the agent retrieves different memories for different users.
+| Metric | Paper (RMM) | Our Implementation (gpt-4o) | Our Implementation (gpt-4o-mini) |
+| :--- | :--- | :--- | :--- |
+| **Recall@K** | 69.8% | **75.0%** | 60.0% |
+| **Accuracy** | 70.4% | **75.0%** | 20.0% |
 
-3. **Tracing in LangSmith**:
-   - All runs from the UI and CLI are automatically traced in your LangSmith project (`rmm-reflection`).
-   - Use the traces to inspect the exact input/output of each node (e.g., the specific memories retrieved).
+> [!IMPORTANT]
+> **Why GPT-4o?** Our testing revealed that `gpt-4o-mini` is often "lossy" during summarization, scrubbing tiny discrete details (e.g., "10% discount" becomes "a discount"). Accuracy dropped to <20% with smaller models. Upgrading to `gpt-4o` recovered full performance.
 
-## 💬 CLI Usage
+---
 
-For a quick terminal-based interaction:
+## 🚀 Getting Started
 
+### Installation
+This project uses `uv` for dependency management.
+
+```bash
+git clone https://github.com/frederickhoffman/rmm.git
+cd rmm
+uv sync
+cp .env.example .env
+```
+*Configure your API keys in `.env` (OpenAI, LangSmith, W&B).*
+
+### Running the Benchmark
+Execute the rigorous LongMemEval suite:
+```bash
+uv run python -m src.eval
+```
+
+### Interactive CLI
+Chat with the agent and see the reflection logic in real-time:
 ```bash
 uv run python main.py
 ```
 
-Observe how the agent "reflects" on the conversation and cites its memories as it learns your preferences over time.
-
 ---
 
-## 📁 Repository Structure
+## 🛠️ Visualizing the State Machine
 
-- `src/memory_store.py`: Vector Database wrapper (ChromaDB).
-- `src/prospective.py`: Logic for summarization and consolidation.
-- `src/retrospective.py`: Neuronal re-ranker and RL update logic.
-- `src/graph.py`: LangGraph state machine definition.
-- `src/eval.py`: Benchmarking and dataset loaders.
-- `main.py`: Interactive CLI entry point.
+This implementation is built on **LangGraph**, allowing for deep inspection of the memory state machine.
+
+1. **Start Dev Server**: `uv run langgraph dev`
+2. **Open Studio**: Connect to the local server to see the graph execution, memory weights, and citation rewards in real-time.
 
 ---
 
 ## 📜 Citation
+Original Paper: [In Prospect and Retrospect: Reflective Memory Management...](https://arxiv.org/abs/2408.02055)
 
-If you use this implementation, please cite the original paper:
-
-Tan, Z., Yan, J., Hsu, I.-H., Han, R., Wang, Z., Le, L. T., Song, Y., Chen, Y., Palangi, H., Lee, G., Iyer, A., Chen, T., Liu, H., Lee, C.-Y., & Pfister, T. (2025). In Prospect and Retrospect: Reflective Memory Management for Long-term Personalized Dialogue Agents. In *Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)*, (pp. 8416–8439). Association for Computational Linguistics.
+```bibtex
+@inproceedings{tan2025prospect,
+  title={In Prospect and Retrospect: Reflective Memory Management for Long-term Personalized Dialogue Agents},
+  author={Tan, Zeqiu and others},
+  booktitle={Proceedings of ACL 2025},
+  year={2025}
+}
+```
