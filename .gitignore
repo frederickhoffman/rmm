@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+chroma_db/
+wandb/
+data/
+paper_text.txt
+src/official_summary_prompt.txt
+*.pth
+reranker.pth
+rmm_eval/
+chroma.sqlite3

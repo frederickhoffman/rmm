@@ -1,0 +1,7 @@
+{
+  "dependencies": ["."],
+  "graphs": {
+    "rmm_agent": "./src/graph.py:compiled_graph"
+  },
+  "env": ".env"
+}
