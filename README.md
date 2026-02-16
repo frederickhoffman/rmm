@@ -66,15 +66,15 @@ cp .env.example .env
 *Configure your API keys in `.env` (OpenAI, LangSmith, W&B).*
 
 ### Data Acquisition
-To ensure reproducibility, use the provided script to download the necessary datasets from Hugging Face:
+To ensure total reproducibility, use the provided script to download the datasets. Note that the **LongMemEval** benchmark is a rigorous, haystack-style evaluation constructed from **Multi-Session Chat (MSC)** data.
 
 ```bash
 uv run python src/download_data.py
 ```
 
 This will download:
-- `longmemeval_s_cleaned.json`: The rigorous LongMemEval split (~115k context).
-- `longmemeval_m_cleaned.json`: The medium split for broader validation.
+- `longmemeval_s_cleaned.json`: The "Small" split (Rigorous haystack-style MSC sessions).
+- `longmemeval_m_cleaned.json`: The "Medium" split (Extended MSC sessions).
 
 ### Running the Benchmark
 Execute the rigorous LongMemEval suite:
